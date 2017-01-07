@@ -1,0 +1,137 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>sudoku expert system</title>
+    <script src="jquery-2.2.3.min.js"></script>
+</head>
+<body>
+<form id="sudokufrm" onsubmit="return false;">
+<h1>SUDOKU EXPERT SYSTEM</h1>
+RULES: (input your rules here)<br>
+<textarea id="rules" style="width: 100%; height: 300px">
+RULE /* 1: 若某个位置只有一种可能的数，则此位置一定是此数 */
+FORALL{num, i, j}
+IF ANY{k: k != num: cantbe(i, j, k)}
+THEN export_mustbe(i, j, num)
+
+RULE /* 2: 若一行中其他位置都不能为某数，则此位置一定是此数 */
+FORALL{num, i, j}
+IF ANY{k: k != j: cantbe(i, k, num)}
+THEN export_mustbe(i, j, num)
+
+RULE /* 3: 若一列中其他位置都不能为某数，则此位置一定是此数 */
+FORALL{num, i, j}
+IF ANY{k: k != i: cantbe(k, j, num)}
+THEN export_mustbe(i, j, num)
+
+RULE /* 4: 若某宫中其他位置都不能为某数，则此位置一定是此数 */
+FORALL{num, i, j}
+IF ANY{x, y: gong(i, j) == gong(x, y) && (i != x || j != y): cantbe(x, y, num)}
+THEN export_mustbe(i, j, num)
+
+RULE /* 5: 若已确定某一位置是某数，则同一行、列、宫的其他位置都不能是此数 */
+FORALL{i, j, x, y}
+IF sure(i, j) && (i != x || j != y) && (i == x || j == y || gong(i, j) == gong(x, y))
+THEN export_cantbe(x, y, a(i, j))
+
+RULE /* 6: 若已确定某一位置是某数，则此位置不能是其他数 */
+FORALL{i, j, num}
+IF sure(i, j) && a(i, j) != num
+THEN export_cantbe(i, j, num)
+
+RULE ADVANCED /* 7: 区块摒除法: 行=>宫 */
+FORALL{num, i, j}
+IF EXISTS{k: true: gong(i, k) == j} && ANY{k: gong(i, k) != j: cantbe(i, k, num)}
+THEN ALL{x, y: gong(x, y) == j && x != i: export_cantbe(x, y, num)}
+
+RULE ADVANCED /* 8: 区块摒除法: 列=>宫*/
+FORALL{num, i, j}
+IF EXISTS{k: true: gong(k, i) == j} && ANY{k: gong(k, i) != j: cantbe(k, i, num)}
+THEN ALL{x, y: gong(x, y) == j && y != i: export_cantbe(x, y, num)}
+
+RULE ADVANCED /* 9: 区块摒除法: 宫=>行 */
+FORALL{num, i, j}
+IF EXISTS{k: true: gong(i, k) == j} && ANY{x, y: gong(x, y) == j && x != i: cantbe(x, y, num)}
+THEN ALL{k: gong(i, k) != j: export_cantbe(i, k, num)}
+
+RULE ADVANCED /* 10: 区块摒除法: 宫=>列 */
+FORALL{num, i, j}
+IF EXISTS{k: true: gong(k, i) == j} && ANY{x, y: gong(x, y) == j && y != i: cantbe(x, y, num)}
+THEN ALL{k: gong(k, i) != j: export_cantbe(k, i, num)}
+
+RULE ADVANCED /* 11: X-WING: 行=>列 */
+FOR{a, b: a != b}
+FOR{c, d: c != d}
+FORALL{num}
+IF ANY{k: k != c && k != d: cantbe(a, k, num) && cantbe(b, k, num)}
+THEN ALL{k: k != a && k != b: export_cantbe(k, c, num), export_cantbe(k, d, num)}
+
+RULE ADVANCED /* 12: X-WING: 列=>行 */
+FOR{a, b: a != b}
+FOR{c, d: c != d}
+FORALL{num}
+IF a != b && c != d && ANY{k: k != c && k != d: cantbe(k, a, num) && cantbe(k, b, num)}
+THEN ALL{k: k != a && k != b: export_cantbe(c, k, num), export_cantbe(d, k, num)}
+
+RULE ADVANCED /* 13: 行数对法 */
+FOR{a, b: a != b}
+FOR{s, t: s != t}
+FORALL{i}
+IF ANY{k: k != s && k != t: cantbe(i, k, a) && cantbe(i, k, b)}
+THEN ALL{z: z != a && z != b: export_cantbe(i, s, z), export_cantbe(i, t, z)}
+
+RULE ADVANCED /* 14: 列数对法 */
+FOR{a, b: a != b}
+FOR{s, t: s != t}
+FORALL{i}
+IF ANY{k: k != s && k != t: cantbe(k, i, a) && cantbe(k, i, b)}
+THEN ALL{z: z != a && z != b: export_cantbe(s, i, z), export_cantbe(t, i, z)}
+
+RULE ADVANCED /* 15: 宫数对法 */
+FOR{a, b: a != b}
+FORALL{i}
+FOR{x1, y1: gong(x1, y1) == i}
+FOR{x2, y2: gong(x2, y2) == i}
+IF ANY{x3, y3: gong(x3, y3) == i && (x3 != x1 || y3 != y1) && (x3 != x2 || y3 != y2): cantbe(x3, y3, a) && cantbe(x3, y3, b)}
+THEN ALL{z: z != a && z != b: export_cantbe(x1, y1, z), export_cantbe(x2, y2, z)}
+
+</textarea>
+<br><br>
+PUZZLE: (input your puzzle here, use 0 for blank positions)<br>
+<textarea id="puzzle" style="width: 100%; height: 300px">
+6 0 5 1 0 3 0 0 0 
+0 0 0 0 0 0 9 0 3 
+0 0 0 6 0 0 0 0 0 
+0 8 6 0 1 0 0 0 5 
+4 0 0 0 0 0 0 0 7 
+1 0 0 0 2 0 3 4 0 
+0 0 0 0 0 1 0 0 0 
+7 0 9 0 0 0 0 0 0 
+0 0 0 9 0 4 8 0 1 
+</textarea>
+<br>
+<button onclick="solve()">SOLVE!</button><button onclick="convert()">CONVERT</button>
+<br>
+<br>
+ANSWER:<br>
+<textarea id="answer" style="width: 300px; height: 300px">
+</textarea>
+<br><br>
+LOG:<br>
+<textarea id="log" style="width: 100%; height: 500px">
+</textarea>
+<br><br>
+QUERY: (input fact number and press enter to start a query)<br><input type="text" id="queryinput" style="width: 100%" onkeydown="if(event.keyCode==13){queryfact();return false;}"><br>
+<textarea id="queryresult" style="width: 100%; height: 500px">
+</textarea>
+<br>
+<br>
+COMPILED RULES:<br>
+<textarea id="compiled_rules" style="width: 100%; height: 400px">
+</textarea>
+<br><br>
+</form>
+<script src="sudoku.js"></script>
+
+</body>
+</html>
