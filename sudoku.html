@@ -109,7 +109,7 @@ FORALL{i}
 IF ANY{k: k != a && k != b: cantbe(s, i, k) && cantbe(t, i, k)}
 THEN ALL{z: z != s && z != t: export_cantbe(z, i, a), export_cantbe(z, i, b)}
 
-RULE ADVANCED /* 18: 宫数对法 */
+RULE ADVANCED /* 18: 宫数对法2 */
 FOR{a, b: a != b}
 FORALL{i}
 FOR{x1, y1: gong(x1, y1) == i}
