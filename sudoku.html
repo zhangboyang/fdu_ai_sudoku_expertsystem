@@ -95,21 +95,21 @@ FOR{x2, y2: gong(x2, y2) == i && (x1 != x2 || y1 != y2)}
 IF ANY{x3, y3: gong(x3, y3) == i && (x3 != x1 || y3 != y1) && (x3 != x2 || y3 != y2): cantbe(x3, y3, a) && cantbe(x3, y3, b)}
 THEN ALL{z: z != a && z != b: export_cantbe(x1, y1, z), export_cantbe(x2, y2, z)}
 
-RULE /* 16: 行数对法2 */
+RULE ADVANCED /* 16: 行数对法2 */
 FOR{a, b: a != b}
 FOR{s, t: s != t}
 FORALL{i}
 IF ANY{k: k != a && k != b: cantbe(i, s, k) && cantbe(i, t, k)}
 THEN ALL{z: z != s && z != t: export_cantbe(i, z, a), export_cantbe(i, z, b)}
 
-RULE /* 17: 列数对法2 */
+RULE ADVANCED /* 17: 列数对法2 */
 FOR{a, b: a != b}
 FOR{s, t: s != t}
 FORALL{i}
 IF ANY{k: k != a && k != b: cantbe(s, i, k) && cantbe(t, i, k)}
 THEN ALL{z: z != s && z != t: export_cantbe(z, i, a), export_cantbe(z, i, b)}
 
-RULE /* 18: 宫数对法 */
+RULE ADVANCED /* 18: 宫数对法 */
 FOR{a, b: a != b}
 FORALL{i}
 FOR{x1, y1: gong(x1, y1) == i}
