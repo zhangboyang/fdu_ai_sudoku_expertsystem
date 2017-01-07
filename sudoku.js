@@ -8,6 +8,9 @@ function make_nextnum(str)
             if ("0123456789".indexOf(ch) >= 0) {
                 return parseInt(ch);
             }
+            if ("?.".indexOf(ch) >= 0) {
+                return 0;
+            }
         }
         return 0;
     };
