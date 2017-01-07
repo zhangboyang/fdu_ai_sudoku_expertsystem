@@ -16,15 +16,20 @@ function rule_translate(r)
 {
     r = r.replace(/\n/g, " ");
     r = "rulevar={};" + r;
+    r = r.replace(/IF(.*)THEN(.*)/g, "{clearbuffer(); export_flag2 = false; if($1){$2} if(export_flag2)rule_fire++;}");
+    //console.log(r);
     r = r.replace(/ADVANCED(.*)/g, "if(!use_advanced)return false;{$1}");
+    //console.log(r);
     r = r.replace(/EXISTS{([^:}]*):([^:}]*):([^:}]*)}/g, "(function(){FOR{$1:$2}if($3)return true;return false;})()");
+    //console.log(r);
     r = r.replace(/ANY{([^:}]*):([^:}]*):([^:}]*)}/g, "(function(){FOR{$1:$2}if(!($3))return false;return true;})()");
+    //console.log(r);
     r = r.replace(/ALL{([^:}]*):([^:}]*):([^:}]*)}/g, "do{FOR{$1:$2}{$3}}while(0)");
-    r = r.replace(/IF(.*)THEN(.*)/g, "{clearbuffer(); export_flag2 = false; if($1)\n{$2} if(export_flag2)rule_fire++;}");
+    //console.log(r);
     for (i = 1; i <= 100; i++) r = r.replace(/FORALL{([^,}]*),([^}]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)FORALL{$2}");
-    r = r.replace(/FORALL{([^,}]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)\n");
+    r = r.replace(/FORALL{([^,}]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)");
     for (i = 1; i <= 100; i++) r = r.replace(/FOR{([^,}:]*),([^}:]*):([^}:]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)FOR{$2:$3}");
-    r = r.replace(/FOR{([^,:}]*):([^}]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)if($2)\n");
+    r = r.replace(/FOR{([^,:}]*):([^}]*)}/g, "for(var $1=1;rulevar.$1=$1,$1<=9;$1++)if($2)");
     return "(function(){{" + r + "}return true;})()";
 }
 function splitrules(ruletext)
