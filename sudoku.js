@@ -1,5 +1,6 @@
 function make_nextnum(str)
 {
+    // nextnum() will ignore unregconized chars
     return function()
     {
         while (str.length > 0) {
@@ -43,6 +44,23 @@ function splitrules(ruletext)
 
 function convert()
 {
+    /* convert puzzle from www.websudoku.com
+       input: "cheat" and "editmask"
+       output: the puzzle with 0 filled in empty positions
+       example:
+           125964837893721645674538129261875394548396712739412586382659471957143268416287953
+           011110111001111100011110011110101101111010111101101011110011110001111100111011110
+       will convert to 
+            1 0 0 0 0 4 0 0 0 
+            8 9 0 0 0 0 0 4 5 
+            6 0 0 0 0 8 1 0 0 
+            0 0 1 0 7 0 0 9 0 
+            0 0 0 3 0 6 0 0 0 
+            0 3 0 0 1 0 5 0 0 
+            0 0 2 6 0 0 0 0 1 
+            9 5 0 0 0 0 0 6 8 
+            0 0 0 2 0 0 0 0 3 
+    */
     var str = $("#puzzle").val();
     var nextnum = make_nextnum(str);
     var ans = new Array(), mask = new Array();
@@ -145,9 +163,13 @@ function pushbuffer(x)
 }
 function getused()
 {
-    return used_rules.sort((a,b)=>a-b).filter(function(item, pos, ary) {
-        return !pos || item != ary[pos - 1];
+    var h = {};
+    var r = new Array();
+    used_rules.forEach(function(item) {
+        if (h[item] !== 1) r.push(item);
+        h[item] = 1;
     });
+    return r;
 }
 
 
